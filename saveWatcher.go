@@ -1,21 +1,30 @@
 package main
 
 import (
+	"crypto/md5"
+	"encoding/hex"
 	"fmt"
+	"io"
 	"io/ioutil"
 	"os"
 	"path/filepath"
 	"strconv"
+	"time"
 )
 
 var initalListOfFiles []os.FileInfo
 
 var userRequestedFile string = ""
 var targetFileExtension string = ".txt"
-var secondsBetweenRefreshes int = 5
+var timeBetweenRefreshes string = "3s"
 var archiveFolderName string = "backupPilots"
 
 func main() {
+	var secondsBetweenRefreshes time.Duration
+	secondsBetweenRefreshes, err := time.ParseDuration(timeBetweenRefreshes)
+	if err != nil {
+		panic(err)
+	}
 
 	//get the inital list of files
 	initalListOfFiles, err := ioutil.ReadDir("./")
@@ -63,4 +72,36 @@ func main() {
 	fmt.Println("Use CTRL-C to exit this watcher ")
 	fmt.Println(" ")
 
+	var done bool = false
+	for !done {
+		for key, value := range targetFilenameWithMD5sum {
+			hashMD5, err := wrappedMD5sum(key)
+			if err == nil {
+				value = hashMD5
+				fmt.Println(key + " has hash " + value)
+			} else {
+				fmt.Println("burped on " + key)
+			}
+
+		}
+		time.Sleep(secondsBetweenRefreshes)
+	}
+
+}
+
+func wrappedMD5sum(filename string) (string, error) {
+	var md5ret string
+	f, err := os.Open(filename)
+	if err != nil {
+		return md5ret, err
+	}
+	defer f.Close()
+
+	h := md5.New()
+	if _, err := io.Copy(h, f); err != nil {
+		return md5ret, err
+	}
+	hashInBytes := h.Sum(nil)[:16]
+	md5ret = hex.EncodeToString(hashInBytes)
+	return md5ret, nil
 }
