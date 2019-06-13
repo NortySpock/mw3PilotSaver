@@ -20,6 +20,11 @@ var timeBetweenRefreshes string = "3s"
 var archiveFolderName string = "backupPilots"
 
 func main() {
+    fmt.Println("This go program is incomplete and should not be expected to work.")
+    fmt.Println("The python program in the same repository should work properly.")
+    fmt.Println(" ")
+
+
 	var secondsBetweenRefreshes time.Duration
 	secondsBetweenRefreshes, err := time.ParseDuration(timeBetweenRefreshes)
 	if err != nil {
@@ -77,8 +82,10 @@ func main() {
 		for key, value := range targetFilenameWithMD5sum {
 			hashMD5, err := wrappedMD5sum(key)
 			if err == nil {
-				value = hashMD5
-				fmt.Println(key + " has hash " + value)
+				if(value != hashMD5){
+                    targetFilenameWithMD5sum[key] = hashMD5
+                    fmt.Println("updated "+key+" was backed up at " + value)
+                }
 			} else {
 				fmt.Println("burped on " + key)
 			}
@@ -88,6 +95,8 @@ func main() {
 	}
 
 }
+
+
 
 func wrappedMD5sum(filename string) (string, error) {
 	var md5ret string

@@ -2,3 +2,6 @@ This is a simple little tool I wrote to backup game files if they change.
 
 This was based on an internet rumor that MechWarrior 3 save files could be corrupted (not have loot at the end) if you restarted the mission. 
 So I plan to run this in the background to automatically archive the save file if I need to.
+
+Note: The python script should work.
+The go program is incomplete and should not be expected to work.
